@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 
 require('dotenv').config()
 
@@ -165,7 +165,7 @@ run().catch(console.dir);
 app.post('/users/update-profile', async (req: Request, res: Response) => {
   try {
     const { email, name, image, role, location, coverPhoto, phoneNumber } = req.body;
-    
+
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
@@ -201,7 +201,7 @@ app.post('/users/update-profile', async (req: Request, res: Response) => {
 app.post('/courses/add', async (req: Request, res: Response) => {
   try {
     const { title, description, category, price, image, instructor } = req.body;
-    
+
     if (!title || !instructor) {
       return res.status(400).json({ error: 'Title and Instructor are required' });
     }
@@ -238,6 +238,27 @@ app.get('/courses', async (req: Request, res: Response) => {
     const coursesCollection = db.collection('courses');
     const courses = await coursesCollection.find({}).toArray();
     return res.status(200).json(courses);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+});
+
+app.get('/courses/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const db = client.db('scholar_stack');
+    const coursesCollection = db.collection('courses');
+
+    let course;
+    if (ObjectId.isValid(id)) {
+      course = await coursesCollection.findOne({ _id: new ObjectId(id) });
+    }
+
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    return res.status(200).json(course);
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
