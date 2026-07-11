@@ -28,9 +28,9 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
     // Seed database with mock courses if empty
@@ -243,9 +243,9 @@ app.get('/courses', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/courses/:id', async (req: Request, res: Response) => {
+app.get('/courses/:id', async (req: Request<{id: string}>, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
     const db = client.db('scholar_stack');
     const coursesCollection = db.collection('courses');
 
@@ -266,4 +266,6 @@ app.get('/courses/:id', async (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
-});     
+});
+
+export default app;     
